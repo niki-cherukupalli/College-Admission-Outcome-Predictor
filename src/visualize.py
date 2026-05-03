@@ -63,12 +63,12 @@ def load_model(name):
     return joblib.load(path)
 
 
-# ── 1. Data distributions ──────────────────────────────────────────────────
+#data distributions
 def plot_data_distributions(df):
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     fig.suptitle("Dataset Overview", fontsize=14, fontweight="bold")
 
-    # Admission outcome
+    #admission outcome
     counts = df["admitted"].value_counts().rename({0: "Not Admitted", 1: "Admitted"})
     bars = axes[0].bar(counts.index, counts.values,
                        color=["#e74c3c", "#2ecc71"], edgecolor="white")
@@ -76,7 +76,7 @@ def plot_data_distributions(df):
     axes[0].set_title("Admission Outcome Distribution")
     axes[0].set_ylabel("Count")
 
-    # Tier breakdown
+    #tier breakdown
     tier_counts = df["school_tier"].value_counts().reindex(TIER_ORDER, fill_value=0)
     colors = [TIER_COLORS[t] for t in tier_counts.index]
     bars2 = axes[1].bar(tier_counts.index, tier_counts.values, color=colors, edgecolor="white")
@@ -89,7 +89,7 @@ def plot_data_distributions(df):
     save("1_data_distributions")
 
 
-# ── 2. ASI distribution ────────────────────────────────────────────────────
+#asi distribution
 def plot_asi_distribution(df):
     if "asi" not in df.columns:
         return
@@ -107,7 +107,7 @@ def plot_asi_distribution(df):
     save("2_asi_distribution")
 
 
-# ── 3. Selectivity gap ────────────────────────────────────────────────────
+#selectivity gap
 def plot_selectivity_gap(df):
     if "selectivity_gap" not in df.columns:
         return
@@ -135,7 +135,7 @@ def plot_selectivity_gap(df):
     save("3_selectivity_gap")
 
 
-# ── 4. Correlation heatmap ────────────────────────────────────────────────
+#correlation heatmap
 def plot_correlation_heatmap(df):
     X, y = get_feature_matrix(df.copy())
     corr_df = X.copy()
@@ -152,7 +152,7 @@ def plot_correlation_heatmap(df):
     save("4_correlation_heatmap")
 
 
-# ── 5. Feature importances ────────────────────────────────────────────────
+#feature importances
 def plot_feature_importances(df):
     X, y = get_feature_matrix(df.copy())
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
@@ -176,7 +176,7 @@ def plot_feature_importances(df):
     save("5_feature_importances")
 
 
-# ── 6. ROC curves per tier ────────────────────────────────────────────────
+#ROC curves per tier
 def plot_roc_curves(df, model_name="random_forest"):
     X_all, y_all = get_feature_matrix(df.copy())
     pipeline = load_model(f"{model_name}_global")
@@ -208,7 +208,7 @@ def plot_roc_curves(df, model_name="random_forest"):
     save(f"6_roc_curves_{model_name}")
 
 
-# ── 7. Confusion matrices ──────────────────────────────────────────────────
+#confusion matrices
 def plot_confusion_matrices(df):
     X, y = get_feature_matrix(df.copy())
     X_train, X_test, y_train, y_test = train_test_split(
@@ -235,7 +235,7 @@ def plot_confusion_matrices(df):
     save("7_confusion_matrices")
 
 
-# ── 8. Model comparison ───────────────────────────────────────────────────
+#model comparison
 def plot_model_comparison(eval_results):
     if not eval_results:
         return
@@ -261,7 +261,7 @@ def plot_model_comparison(eval_results):
     save("8_model_comparison")
 
 
-# ── Full pipeline ─────────────────────────────────────────────────────────
+#full pipeline
 def run_visualizations(df, eval_results=None):
     print("[visualize] Generating all plots...")
     plot_data_distributions(df)

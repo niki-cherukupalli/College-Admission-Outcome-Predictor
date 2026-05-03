@@ -76,7 +76,7 @@ def evaluate_per_tier(df, model_name: str):
     tier_results = {}
     X_all, y_all = get_feature_matrix(df.copy())
 
-    # Fit global model on all data for fallback predictions
+    #fit global model on all data
     global_pipeline = load_model(f"{model_name}_global")
     global_pipeline.fit(X_all, y_all)
 
@@ -91,7 +91,6 @@ def evaluate_per_tier(df, model_name: str):
 
         X_t, y_t = get_feature_matrix(tier_df)
 
-        # Try tier-specific model first, fall back to global
         tier_key = tier.replace(" ", "_")
         try:
             pipeline = load_model(f"{model_name}_{tier_key}")
@@ -120,7 +119,7 @@ def evaluate_per_tier(df, model_name: str):
 
 def save_results(results: dict, tier_results: dict, importances, model_name: str):
     """Save evaluation outputs to /results/."""
-    # JSON — strip non-serializable fields
+    #JSON — strip non-serializable fields
     out = {k: v for k, v in results.items() if k not in ("y_test", "y_prob")}
     out["tier_breakdown"] = tier_results
 
@@ -129,7 +128,6 @@ def save_results(results: dict, tier_results: dict, importances, model_name: str
         json.dump(out, f, indent=2)
     print(f"[evaluate] Saved: {json_path}")
 
-    # Feature importances CSV
     if importances is not None:
         imp_path = os.path.join(RESULTS_DIR, f"{model_name}_feature_importances.csv")
         importances.reset_index().rename(

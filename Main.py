@@ -54,7 +54,6 @@ def main():
     args = parse_args()
     start = time.time()
 
-    # ── Step 1: Load ────────────────────────────────────────────────────
     print("\n" + "─"*55)
     print(" STEP 1: Loading Data")
     print("─"*55)
@@ -65,33 +64,28 @@ def main():
     )
     print(f"  Raw applicant records: {raw_df.shape[0]} rows")
 
-    # ── Step 2: Preprocess ──────────────────────────────────────────────
     print("\n" + "─"*55)
     print(" STEP 2: Preprocessing")
     print("─"*55)
     clean_df = run_preprocessing(raw_df, tier_lookup)
 
-    # ── Step 3: Feature Engineering ─────────────────────────────────────
     print("\n" + "─"*55)
     print(" STEP 3: Feature Engineering")
     print("─"*55)
     featured_df = build_all_features(clean_df)
 
     if not args.skip_train:
-        # ── Step 4: Train ────────────────────────────────────────────────
         print("\n" + "─"*55)
         print(" STEP 4: Model Training")
         print("─"*55)
         run_training(featured_df)
 
-    # ── Step 5: Evaluate ────────────────────────────────────────────────
     print("\n" + "─"*55)
     print(" STEP 5: Evaluation")
     print("─"*55)
     eval_results = run_evaluation(featured_df)
 
     if not args.skip_viz:
-        # ── Step 6: Visualize ────────────────────────────────────────────
         print("\n" + "─"*55)
         print(" STEP 6: Visualization")
         print("─"*55)

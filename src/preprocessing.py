@@ -17,7 +17,7 @@ import numpy as np
 TIER_ORDER = ["Ivy", "Highly Selective", "Selective", "Less Selective"]
 TIER_ORDINAL = {t: i for i, t in enumerate(TIER_ORDER)}
 
-# Default tier lookup (University Rating 1-5 → tier name)
+#default tier lookup
 DEFAULT_TIER_LOOKUP = {
     1: "Ivy",
     2: "Highly Selective",
@@ -27,7 +27,7 @@ DEFAULT_TIER_LOOKUP = {
 }
 
 
-# ── GPA standardization ────────────────────────────────────────────────────
+#gpa standardization
 def standardize_gpa(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert CGPA (10-point scale) to 4.0 scale.
@@ -48,7 +48,7 @@ def standardize_gpa(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ── Test score → percentile ────────────────────────────────────────────────
+#test score to percentile
 def gre_to_percentile(score: float) -> float:
     """
     Convert GRE total score (260-340) to approximate percentile.
@@ -83,13 +83,12 @@ def standardize_test_scores(df: pd.DataFrame) -> pd.DataFrame:
     if "toefl_score" in df.columns:
         toefl_pct = df["toefl_score"].apply(toefl_to_percentile)
 
-    # Average both signals; fall back to whichever is available
     combined = pd.DataFrame({"gre": gre_pct, "toefl": toefl_pct})
     df["test_percentile"] = combined.mean(axis=1, skipna=True).round(2)
     return df
 
 
-# ── School tier mapping ────────────────────────────────────────────────────
+#school tier mapping
 def standardize_tiers(df: pd.DataFrame, tier_lookup: dict = None) -> pd.DataFrame:
     """
     Map University Rating (1-5) → school tier string → ordinal int.
@@ -116,7 +115,7 @@ def standardize_tiers(df: pd.DataFrame, tier_lookup: dict = None) -> pd.DataFram
     return df
 
 
-# ── Extracurricular imputation ─────────────────────────────────────────────
+#extracuricular imputation
 def impute_extracurriculars(df: pd.DataFrame) -> pd.DataFrame:
     """
     This dataset doesn't have extracurricular data, so we derive a proxy
@@ -127,11 +126,10 @@ def impute_extracurriculars(df: pd.DataFrame) -> pd.DataFrame:
     sop = pd.to_numeric(df.get("sop_strength", pd.Series(np.nan, index=df.index)), errors="coerce")
     lor = pd.to_numeric(df.get("lor_strength", pd.Series(np.nan, index=df.index)), errors="coerce")
 
-    # Average SOP and LOR (both on 1-5 scale), scale to 0-10
+    #avg SOP and LOR
     proxy = pd.DataFrame({"sop": sop, "lor": lor}).mean(axis=1, skipna=True)
     df["extracurricular_score"] = (proxy * 2).round(2)  # scale 1-5 → 2-10
 
-    # Normalize to 0-1
     max_ec = df["extracurricular_score"].max()
     df["extracurricular_score_norm"] = (
         (df["extracurricular_score"] / max_ec).round(4) if max_ec > 0 else 0.0
@@ -139,7 +137,7 @@ def impute_extracurriculars(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ── Categorical encoding ───────────────────────────────────────────────────
+#categorical encoding
 def encode_categoricals(df: pd.DataFrame) -> pd.DataFrame:
     """
     Encode binary flags. Since this dataset doesn't have legacy/first-gen/
@@ -147,20 +145,18 @@ def encode_categoricals(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
 
-    # has_research is already 0/1 in the dataset
     if "has_research" in df.columns:
         df["has_research"] = pd.to_numeric(df["has_research"], errors="coerce").fillna(0).astype(int)
     else:
         df["has_research"] = 0
 
-    # Demographic flags — not in this dataset, default to 0
     for col in ["is_legacy", "is_first_gen", "is_stem", "is_instate"]:
         df[col] = 0
 
     return df
 
 
-# ── Drop unusable rows ─────────────────────────────────────────────────────
+#drop unusable rows
 def drop_unusable_rows(df: pd.DataFrame) -> pd.DataFrame:
     """Drop rows missing both the target label and core academic features."""
     df = df.copy()
@@ -171,7 +167,7 @@ def drop_unusable_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ── Full pipeline ──────────────────────────────────────────────────────────
+#pipeline
 def run_preprocessing(df: pd.DataFrame, tier_lookup: dict = None) -> pd.DataFrame:
     """
     Full preprocessing pipeline.
@@ -185,7 +181,6 @@ def run_preprocessing(df: pd.DataFrame, tier_lookup: dict = None) -> pd.DataFram
     df = encode_categoricals(df)
     df = drop_unusable_rows(df)
 
-    # Fill any remaining numeric NaNs with column medians
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
 

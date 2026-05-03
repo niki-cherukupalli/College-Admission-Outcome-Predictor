@@ -20,8 +20,7 @@ Builds all four engineered features described in the project proposal:
 import pandas as pd
 import numpy as np
 
-# Tier median ASI benchmarks (estimated from public admissions data)
-# Used to compute the School Selectivity Gap
+#median asi benchmarks, used to compute school selectivity gap
 TIER_MEDIAN_ASI = {
     "Ivy":              92.0,
     "Highly Selective": 82.0,
@@ -30,8 +29,8 @@ TIER_MEDIAN_ASI = {
     "Unknown":          60.0,
 }
 
-# AP/IB course rigor bonus (mapped from course_rigor column if present, else 0)
-MAX_RIGOR_BONUS = 10.0  # maximum points added to ASI from course rigor
+#course rigor bonus
+MAX_RIGOR_BONUS = 10.0  #max pts added to asi from course rigor
 
 
 def compute_gpa_percentile(df: pd.DataFrame) -> pd.Series:
@@ -42,7 +41,7 @@ def compute_gpa_percentile(df: pd.DataFrame) -> pd.Series:
     def _gpa_to_pct(gpa):
         if pd.isna(gpa):
             return np.nan
-        # Piecewise: 4.0=99, 3.7=93, 3.5=85, 3.3=75, 3.0=60, 2.7=45, 2.5=35, 2.0=20
+        #piecewise
         breakpoints = [(4.0, 99), (3.7, 93), (3.5, 85), (3.3, 75),
                        (3.0, 60), (2.7, 45), (2.5, 35), (2.0, 20), (0.0, 1)]
         for i in range(len(breakpoints) - 1):
@@ -65,7 +64,7 @@ def compute_rigor_bonus(df: pd.DataFrame) -> pd.Series:
     for col in ["course_rigor", "ap_courses", "num_ap", "ap_ib"]:
         if col in df.columns:
             raw = pd.to_numeric(df[col], errors="coerce").fillna(0)
-            # Normalize: assume max of 10 AP/IB courses = full bonus
+            #normalize
             return (raw.clip(0, 10) / 10 * MAX_RIGOR_BONUS).round(2)
     return pd.Series(0.0, index=df.index)
 
@@ -159,7 +158,7 @@ def build_all_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ── Final feature column list for model input ──────────────────────────────
+#feature column list for model input
 FEATURE_COLS = [
     "asi",
     "gpa_percentile",

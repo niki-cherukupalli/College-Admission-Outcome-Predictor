@@ -28,8 +28,6 @@ import os
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
-
-# ── Tier derivation from acceptance rate ───────────────────────────────────
 def acceptance_rate_to_tier(pct: float) -> str:
     """Map a school's acceptance rate (0-100) to a selectivity tier."""
     if pd.isna(pct):
@@ -77,7 +75,7 @@ def load_institutional_tier_lookup(path: str = None) -> dict:
         df = pd.read_csv(path)
         df.columns = df.columns.str.strip()
 
-        # Find the acceptance rate column
+        #finds acceptance rate col
         pct_col = None
         for col in df.columns:
             if "percent admitted" in col.lower() or "admission rate" in col.lower():
@@ -92,8 +90,7 @@ def load_institutional_tier_lookup(path: str = None) -> dict:
         print(f"[data_loader] Institutional acceptance rates — "
               f"min={pct_vals.min():.1f}% median={pct_vals.median():.1f}% max={pct_vals.max():.1f}%")
 
-        # Map University Rating 1-5 to tiers using acceptance rate quantiles
-        # Rating 1 = most selective, 5 = least selective
+        #university rating 1-5
         lookup = {
             1: "Ivy",
             2: "Highly Selective",
@@ -109,7 +106,6 @@ def load_institutional_tier_lookup(path: str = None) -> dict:
         return fallback
 
 
-# ── Applicant record loaders ───────────────────────────────────────────────
 def _load_grad_csv(path: str, source_label: str) -> pd.DataFrame:
     """
     Generic loader for either graduate admissions CSV.
@@ -136,7 +132,7 @@ def _load_grad_csv(path: str, source_label: str) -> pd.DataFrame:
     }
     df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
 
-    # Binarize admission outcome: probability >= 0.5 → admitted
+    #binarize outcomes
     if "admit_probability" in df.columns:
         df["admitted"] = (
             pd.to_numeric(df["admit_probability"], errors="coerce") >= 0.5
@@ -144,7 +140,7 @@ def _load_grad_csv(path: str, source_label: str) -> pd.DataFrame:
 
     df["dataset_source"] = source_label
 
-    # Drop the serial number — not a feature
+    #drops serial num
     if "serial_no" in df.columns:
         df = df.drop(columns=["serial_no"])
 
@@ -162,7 +158,7 @@ def load_adm_data(path: str = None) -> pd.DataFrame:
     return _load_grad_csv(path, "graduate_2")
 
 
-# ── Merge ──────────────────────────────────────────────────────────────────
+#merge
 def merge_datasets(df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
     """
     Concatenate both applicant DataFrames into one unified pool.
@@ -170,7 +166,7 @@ def merge_datasets(df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
     """
     merged = pd.concat([df1, df2], ignore_index=True, sort=False)
 
-    # Drop exact duplicates across key columns
+    #drops exact duplicates across cols
     key_cols = [c for c in ["gre_score", "toefl_score", "gpa_raw", "sop_strength", "lor_strength"]
                 if c in merged.columns]
     before = len(merged)

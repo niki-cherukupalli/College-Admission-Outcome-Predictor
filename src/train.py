@@ -85,7 +85,6 @@ def cross_validate_model(pipeline, X, y):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-        # Skip fold if test set has only one class (can't compute AUC)
         if y_test.nunique() < 2:
             continue
 
@@ -99,7 +98,6 @@ def cross_validate_model(pipeline, X, y):
         fold_metrics["recall"].append(recall_score(y_test, y_pred, zero_division=0))
         fold_metrics["accuracy"].append(accuracy_score(y_test, y_pred))
 
-    # If all folds were skipped, return zeros
     if not fold_metrics["auc_roc"]:
         return {"f1": 0, "auc_roc": 0, "precision": 0, "recall": 0, "accuracy": 0}
 
@@ -133,7 +131,7 @@ def run_training(df):
         for model_name, build_fn in MODEL_BUILDERS.items():
             print(f"\n[train] ── {model_name} ──")
 
-            # Global model
+            #global model
             params = {"model": model_name, "tier": "global", "n_samples": len(df)}
             metrics, pipeline = train_and_save(
                 build_fn(), X_all, y_all,
@@ -144,7 +142,7 @@ def run_training(df):
             print(f"  {'GLOBAL':<20} | AUC={metrics['auc_roc']:.3f} | F1={metrics['f1']:.3f} | n={len(df)}")
             summary[model_name] = {"global": {"metrics": metrics, "model": pipeline}, "tiers": {}}
 
-            # Per-tier models
+            #per tier models
             for tier in TIER_ORDER:
                 tier_df = df[df["school_tier"] == tier]
                 if len(tier_df) < 20 or tier_df["admitted"].nunique() < 2:
