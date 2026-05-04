@@ -9,14 +9,6 @@
 
 The college admissions process in the United States is a stressful and opaque experience, especially for students without access to expensive counseling services. This project builds a machine learning pipeline that predicts the likelihood of admission to a university based on a student's academic profile, extracurricular involvement, and demographic background.
 
-By training on anonymized, self-reported admissions outcomes from Kaggle, the pipeline identifies which features most strongly correlate with acceptance decisions — providing data-driven transparency to prospective applicants who lack institutional support.
-
-### Problem
-Students with nearly identical credentials often receive inconsistent results across schools with similar admissions rates. Existing prediction tools (Naviance, CollegeVine) are proprietary and inaccessible. This project builds an open, reproducible alternative.
-
-### Approach
-The pipeline combines two Kaggle datasets into a unified schema, engineers four custom features, and trains two classifiers stratified by school selectivity tier. All experiments are logged with MLflow for full reproducibility.
-
 ### Engineered Features
 - **Academic Strength Index (ASI)** — composite of GPA percentile, test score percentile, and course rigor
 - **School Selectivity Gap** — difference between an applicant's ASI and their target school tier's median admitted profile (reach vs. match indicator)
