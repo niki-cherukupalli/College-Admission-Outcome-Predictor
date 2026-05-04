@@ -38,28 +38,6 @@ Both models exceeded the project success criteria of AUC-ROC ≥ 0.70 and F1 ≥
 
 ---
 
-## Project Structure
-
-```
-college_admission_predictor/
-├── data/                        # Kaggle CSVs (not tracked in git — see setup below)
-├── src/
-│   ├── data_loader.py           # Loads and merges both datasets into unified schema
-│   ├── preprocessing.py         # GPA standardization, test score percentiles, encoding
-│   ├── feature_engineering.py   # Builds ASI, selectivity gap, EC score, demographic flags
-│   ├── train.py                 # Model training + MLflow logging, global + per-tier
-│   ├── evaluate.py              # AUC-ROC, F1, per-tier breakdown, feature importances
-│   └── visualize.py             # 8 publication-quality plots saved to /visualizations/
-├── models/                      # Saved .pkl model files (not tracked in git)
-├── visualizations/              # Saved PNG plots (not tracked in git)
-├── results/                     # JSON + CSV evaluation outputs (not tracked in git)
-├── main.py                      # Full pipeline runner — runs all 6 steps end to end
-├── requirements.txt
-└── README.md
-```
-
----
-
 ## Setup and Run Instructions
 
 ### 1. Clone the Repository
@@ -95,22 +73,6 @@ python main.py
 ```
 
 This runs all 6 steps in sequence: data loading → preprocessing → feature engineering → training → evaluation → visualization. Outputs are saved to `/models/`, `/results/`, and `/visualizations/`.
-
-### 5. Skip Retraining (if models already exist)
-```bash
-python main.py --skip-train
-```
-
-### 6. Use Custom Data Paths
-```bash
-python main.py --grad-path path/to/grad.csv --adm-path path/to/adm.csv --institutional-path path/to/schools.csv
-```
-
-### 7. View MLflow Experiment Runs
-```bash
-mlflow ui
-```
-Then open `http://localhost:5000` in your browser to see all logged runs, hyperparameters, and metrics.
 
 ---
 
